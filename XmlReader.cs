@@ -447,8 +447,8 @@ namespace Helpers.Functions
                 }
             }
             ////Write to file
-            DataFunction.WriteFiles(xml, XmlFilename, Folder);
-            return true;
+            return DataFunction.WriteFiles(xml, XmlFilename, Folder);
+            
         }
         public static bool SerializationObjetTolJson<T>(T DataObject, string fileName, string Folder)
         {
@@ -456,10 +456,13 @@ namespace Helpers.Functions
             {
                 string jsonData = JsonConvert.SerializeObject(DataObject);
                 ////Write to file
-                DataFunction.WriteFiles(jsonData, fileName, Folder);
+                return DataFunction.WriteFiles(jsonData, fileName, Folder);
             }
             catch (Exception ex)
-            { Helpers.Functions.DataFunction.WriteLog("SerializationObjetTolJson", ex.Message); }
+            { 
+                Helpers.Functions.DataFunction.WriteLog("SerializationObjetTolJson", ex.Message);
+                return false;
+            }
             return true;
         }
 
