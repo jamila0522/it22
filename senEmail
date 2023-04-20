@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+using System.Net.Mail;
+using Scb.Framework;
+using System.IO;
+using System.Configuration;
+
+namespace SendMailTest
+{
+  public partial class Form1 : Form
+  {
+    public Form1()
+    {
+      InitializeComponent();
+    }
+
+    private void btnSend_Click(object sender, EventArgs e)
+    {
+      string curPath = Path.GetDirectoryName(Application.ExecutablePath);
+      string[] attachFile = Directory.GetFiles(curPath + "/AttachFile");
+      string content = string.Format("SMTP:{0} - Port: {1}",txtSmtp.Text, txtPort.Text);
+
+      MessageBox.Show(SendMail(content, attachFile, "Test Send Mail"));
+    }
+
+    public string SendMail(string content, string[] attachfiles, string subject)
+    {
+      string error = string.Empty;
+      try
+      {
+        SmtpClient smtp = new SmtpClient(txtSmtp.Text.Trim());
+        smtp.UseDefaultCredentials = true;
+        smtp.Port = int.Parse(txtPort.Text.Trim());
+        MailMessage mail = new MailMessage();
+        mail.From = new MailAddress(txtEmailfrom.Text.Trim());
+        mail.Subject = subject;
+        mail.Body = content;
+
+        string[] address = txtmailTo.Text.Split(';');
+        for (int i = 0; i < address.Length; i++)
+        {
+          if (address[i].ToString() != "")
+          {
+            try
+            {
+              mail.To.Add(address[i].ToString());
+            }
+            catch (Exception ex)
+            {
+              error = string.Format("Invalid Email:{0}::{1}", address[i].ToString(), ex);
+            }
+          }
+        }
+
+        if (attachfiles != null)
+          foreach (string attachfile in attachfiles)
+          {
+            if (attachfile != null)
+            {
+              mail.Attachments.Add(new System.Net.Mail.Attachment(attachfile));
+            }
+          }
+        if (mail.To.Count > 0)
+        {
+            smtp.Send(mail);
+            error = "Send Success!";
+        }
+        return error;
+      }
+      catch (Exception ex)
+      {
+        error = string.Format("**Send Email Fail***: Error INFO::{0}",ex);
+      }
+      return error;
+    }
+
+    private void Form1_Load(object sender, EventArgs e)
+    {
+      txtPort.Text = "25";
+      txtSmtp.Text = "10.108.167.26";
+      txtEmailfrom.Text = "V2121@cxzczxc.com";
+      txtmailTo.Text = "czxcz@cxvxcv.com";
+    }
+
+  }
+}
