@@ -1,0 +1,37 @@
+public static SqlCommand sqlcommand(string stringConnect, string sql, params Object[] para)
+        {
+            SqlConnection connec = new SqlConnection(stringConnect);
+            SqlCommand con = new SqlCommand(sql, connec);
+            for (int i = 0; i < para.Length; i += 2)
+            {
+                con.Parameters.AddWithValue(para[i].ToString(), para[i + 1]);
+            }
+            return con;
+        }
+
+
+        public static int ExecuteNonQuery(string stringConnect, string sql, params Object[] para)
+        {
+            SqlCommand con = sqlcommand(stringConnect, sql, para);
+            con.Connection.Open();
+            int row = con.ExecuteNonQuery();
+            con.Connection.Close();
+            return row;
+        }
+        public static DataSet Select(string stringConnect, string sql, params Object[] para)
+        {
+            SqlCommand con = sqlcommand(stringConnect, sql, para);
+            SqlDataAdapter data = new SqlDataAdapter(con);
+            DataSet ds = new DataSet();
+            data.Fill(ds);
+            return ds;
+        }
+        public static string GetValueNoneCode(string stringConnect, string sql)
+        {
+
+            string row = "";
+            row = Select(stringConnect,sql).Tables[0].Rows[0][0].ToString();
+            return row;
+
+
+        }
